@@ -17,8 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      VITE_OPENWEATHER_API_KEY: ${{ vars.VITE_OPENWEATHER_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +34,7 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: node --test src/utils/battery.test.mjs
+        run: node --test src/utils/battery.test.mjs src/utils/weather.test.mjs
 
       - name: Build
         run: npm run build

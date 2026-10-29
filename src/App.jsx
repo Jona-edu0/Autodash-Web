@@ -19,6 +19,7 @@ import {
 import "./App.css";
 import { useVehicleGps } from "./hooks/useVehicleGps";
 import { adjustBatteryValue, batteryFromDistance, clampBattery } from "./utils/battery";
+import { fetchCurrentWeather } from "./utils/weather";
 
 // Consumo de referencia: una carga completa permite recorrer 25 km.
 const KM_PER_FULL_BATTERY = 25;
@@ -26,32 +27,6 @@ const KM_PER_FULL_BATTERY = 25;
 // Presenta valores decimales y evita mostrar datos inválidos en pantalla.
 function formatNumber(value, digits = 1) {
   return Number.isFinite(value) ? value.toFixed(digits) : "--";
-}
-
-// Unifica el formato de las respuestas meteorológicas de distintos servicios.
-function normalizeWeatherResponse(data) {
-  if (!data) return null;
-
-  if (data.current) {
-    return data;
-  }
-
-  const weatherDescription = data.weather?.[0]?.description || "Clima";
-  const weatherIcon = data.weather?.[0]?.icon || "01d";
-
-  return {
-    timezone: data.name || "Ubicación actual",
-    current: {
-      temp: data.main?.temp ?? 0,
-      humidity: data.main?.humidity ?? 0,
-      wind_speed: data.wind?.speed ?? 0,
-      uvi: data.uvi ?? null,
-      weather: [{
-        description: weatherDescription,
-        icon: weatherIcon,
-      }],
-    },
-  };
 }
 
 // Calcula el contraste del texto según el brillo del fondo elegido.
@@ -198,79 +173,21 @@ function App() {
     );
   }, [gps.position]);
 
-  // Consulta el clima y, si hace falta, obtiene el índice UV de otro servicio.
+  // Consulta el clima actual, incluido el índice UV, para la ubicación GPS.
   async function loadWeather(lat, lon) {
-    const key = import.meta.env.VITE_OPENWEATHER_API_KEY;
-
-    if (!key) {
-      setWeather(null);
-      setWeatherStatus("Falta configurar la API");
-      setWeatherError(
-        "Agrega VITE_OPENWEATHER_API_KEY en .env para ver el clima."
-      );
-      return;
-    }
-
     try {
       setWeatherStatus("Actualizando...");
       setWeatherError("");
 
-      const endpoints = [
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=es&appid=${key}`,
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,daily,alerts&units=metric&lang=es&appid=${key}`,
-      ];
-
-      let data = null;
-
-      for (const endpoint of endpoints) {
-        const response = await fetch(endpoint);
-
-        if (!response.ok) {
-          continue;
-        }
-
-        data = await response.json();
-        break;
-      }
-
-      if (!data) {
-        throw new Error("No se pudo obtener la información del clima");
-      }
-
-      const normalizedWeather = normalizeWeatherResponse(data);
-
-      if (!normalizedWeather) {
-        throw new Error("La respuesta del clima no tiene el formato esperado");
-      }
-
-      if (!Number.isFinite(normalizedWeather.current.uvi)) {
-        const uvUrl =
-          `https://api.open-meteo.com/v1/forecast` +
-          `?latitude=${lat}&longitude=${lon}` +
-          `&current=uv_index&timezone=auto`;
-        const uvResponse = await fetch(uvUrl);
-
-        if (uvResponse.ok) {
-          const uvData = await uvResponse.json();
-          const uvIndex = uvData.current?.uv_index;
-
-          normalizedWeather.current.uvi = Number.isFinite(uvIndex)
-            ? uvIndex
-            : null;
-        }
-      }
-
-      setWeather(normalizedWeather);
+      setWeather(await fetchCurrentWeather(lat, lon));
       setWeatherStatus("Actualizado");
     } catch (error) {
       console.error(error);
 
       setWeather(null);
-
       setWeatherStatus("No disponible");
-
       setWeatherError(
-        "No se pudo consultar el clima de tu ubicación, pero el GPS sigue activo."
+        `${error.message} Comprueba la conexión a Internet e inténtalo de nuevo.`
       );
     }
   }
@@ -773,6 +690,15 @@ function App() {
                   {weatherError}
                 </p>
               )}
+
+              <a
+                className="weather-attribution"
+                href="https://open-meteo.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Datos meteorológicos: Open-Meteo
+              </a>
 
             </section>
 

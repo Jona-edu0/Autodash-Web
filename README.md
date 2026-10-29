@@ -34,13 +34,7 @@ Este acceso funciona dentro de la misma red local. Para acceder desde fuera de e
 
 ## Clima
 
-Para habilitar la consulta meteorológica, crea un archivo `.env` en la raíz del proyecto y agrega tu clave:
-
-```env
-VITE_OPENWEATHER_API_KEY=tu_clave_de_openweather
-```
-
-Reinicia `npm run dev` después de crear o cambiar este archivo. Vite incorpora las variables `VITE_` al código del navegador; no uses aquí una clave que deba mantenerse secreta.
+El clima actual y el índice UV se consultan automáticamente con Open-Meteo cuando se permite el acceso a la ubicación. No se necesita una clave API ni configuración adicional. Se requiere conexión a Internet y abrir la app mediante HTTPS o `localhost` para que el navegador permita usar el GPS.
 
 ## Compilar y previsualizar
 
@@ -58,8 +52,6 @@ El flujo de GitHub Actions compila y valida la app en cada pull request hacia `m
 `https://jona-edu0.github.io/Autodash-Web/`
 
 En GitHub, configura **Settings > Pages > Build and deployment > Source** como **GitHub Actions**. La URL estará disponible cuando termine correctamente la primera ejecución del flujo.
-
-Para habilitar el clima en la versión publicada, agrega `VITE_OPENWEATHER_API_KEY` como variable del repositorio en **Settings > Secrets and variables > Actions > Variables**. La clave se incluye en el cliente web; usa una clave restringida para este sitio.
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.

@@ -346,6 +346,15 @@
   text-align: center;
   white-space: nowrap;
 }
+.weather-attribution {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.65rem;
+  text-align: right;
+  text-decoration: none;
+}
+.weather-attribution:hover { text-decoration: underline; }
 .future-shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.3vw, 18px); }
 .placeholder { display: flex; min-height: clamp(64px, 12vh, 140px); align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.38); border-radius: 18px; background: rgba(255,255,255,0.08); color: var(--muted); font-size: 0.98rem; font-weight: 600; backdrop-filter: blur(18px); }
 
