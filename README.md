@@ -50,6 +50,16 @@ npm run preview
 ```
 
 El servidor de previsualización también escucha en la red local. Usa la dirección y el puerto que informe Vite.
+
+## Publicar en GitHub Pages
+
+El flujo de GitHub Actions compila y valida la app en cada pull request hacia `main`. Al subir cambios a `main` o iniciar el flujo manualmente, también la publica en GitHub Pages:
+
+`https://jona-edu0.github.io/Autodash-Web/`
+
+En GitHub, configura **Settings > Pages > Build and deployment > Source** como **GitHub Actions**. La URL estará disponible cuando termine correctamente la primera ejecución del flujo.
+
+Para habilitar el clima en la versión publicada, agrega `VITE_OPENWEATHER_API_KEY` como variable del repositorio en **Settings > Secrets and variables > Actions > Variables**. La clave se incluye en el cliente web; usa una clave restringida para este sitio.
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.

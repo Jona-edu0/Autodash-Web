@@ -11,6 +11,7 @@ const lanAddress = Object.values(networkInterfaces())
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/Autodash-Web/',
   plugins: [
     react(),
     // Genera certificados para que los navegadores puedan usar GPS por HTTPS.
