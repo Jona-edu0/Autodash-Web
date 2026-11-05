@@ -3,6 +3,7 @@ import { CircleMarker, MapContainer, Polyline, TileLayer, useMap, useMapEvents }
 import { DigitalSpeedGauge } from "./components/DigitalSpeedGauge";
 import { MultimediaPanel } from "./components/MultimediaPanel";
 import { Vehicle3DViewer } from "./components/Vehicle3DViewer";
+import { VoiceAssistant } from "./components/VoiceAssistant";
 import "leaflet/dist/leaflet.css";
 import {
   BatteryCharging,
@@ -824,6 +825,12 @@ function App() {
         <div className="brand">
           <div className="brand-mark">
             <CarFront size={34} />
+            <VoiceAssistant
+              battery={manualBattery}
+              speed={demoSpeed}
+              weather={weather}
+              onNavigate={setActiveNav}
+            />
           </div>
 
           <div>
