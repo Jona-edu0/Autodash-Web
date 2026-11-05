@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Polyline, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { DigitalSpeedGauge } from "./components/DigitalSpeedGauge";
 import { MultimediaPanel } from "./components/MultimediaPanel";
-import { QRCodeSVG } from "qrcode.react";
 import "leaflet/dist/leaflet.css";
 import {
   BatteryCharging,
@@ -17,6 +16,7 @@ import {
   Plus,
   Settings,
   SlidersHorizontal,
+  Trash2,
   UserCircle2,
   Wifi,
   Wrench,
@@ -115,6 +115,30 @@ function buildOfflineRoute(origin, destination) {
 
   return points;
 }
+
+const CONSUMPTION_HISTORY = {
+  week: {
+    labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+    values: [4.8, 5.3, 4.6, 6.1, 5.5, 4.9, 3.6],
+  },
+  month: {
+    labels: ["Sem 1", "Sem 2", "Sem 3", "Sem 4"],
+    values: [31.8, 28.4, 33.2, 26.9],
+  },
+};
+
+const DEFAULT_KANBAN_TASKS = [
+  { id: "service-1", title: "Revisar presión de neumáticos", category: "Vehículo", due: "Hoy", status: "todo" },
+  { id: "service-2", title: "Programar cambio de frenos", category: "Vehículo", due: "15 nov", status: "todo" },
+  { id: "daily-1", title: "Preparar ruta de la próxima semana", category: "Personal", due: "Hoy", status: "doing" },
+  { id: "service-3", title: "Actualizar registro de mantenimiento", category: "Vehículo", due: "Completado ayer", status: "done" },
+];
+
+const KANBAN_COLUMNS = [
+  { id: "todo", title: "Pendientes", color: "#7e91a4" },
+  { id: "doing", title: "En proceso", color: "#4aa8d8" },
+  { id: "done", title: "Completadas", color: "#58c69b" },
+];
 
 function MapCenterController({ center }) {
   const map = useMap();
@@ -401,6 +425,23 @@ function App() {
     () => localStorage.getItem("autodash-background") || "#dfe7ee"
   );
   const [now, setNow] = useState(new Date());
+  const [consumptionPeriod, setConsumptionPeriod] = useState("week");
+  const [kanbanTasks, setKanbanTasks] = useState(() => {
+    try {
+      const storedTasks = JSON.parse(localStorage.getItem("autodash-kanban-tasks"));
+      return Array.isArray(storedTasks) ? storedTasks : DEFAULT_KANBAN_TASKS;
+    } catch {
+      return DEFAULT_KANBAN_TASKS;
+    }
+  });
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskCategory, setNewTaskCategory] = useState("Vehículo");
+  const [newTaskDue, setNewTaskDue] = useState("Hoy");
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem("autodash-kanban-tasks", JSON.stringify(kanbanTasks));
+  }, [kanbanTasks]);
 
   // Estado del clima, su mensaje de carga y posibles errores de consulta.
   const [weather, setWeather] = useState(null);
@@ -487,13 +528,6 @@ function App() {
     : demoSpeed;
 
   const speedColor = getGaugeAccent(backgroundColor);
-  // Si el panel está abierto en localhost, comparte la IPv4 del servidor local.
-  const isLoopbackHost = ["localhost", "127.0.0.1", "::1"].includes(
-    window.location.hostname
-  );
-  const shareUrl = isLoopbackHost
-    ? `${window.location.protocol}//${__AUTODASH_LAN_HOST__}${window.location.port ? `:${window.location.port}` : ""}${window.location.pathname}${window.location.search}${window.location.hash}`
-    : window.location.href;
 
   // Aplica el tema seleccionado a los estilos globales de la página.
   useEffect(() => {
@@ -704,6 +738,34 @@ function App() {
     setManualBatteryInput(String(nextValue));
   }
 
+  function addKanbanTask(event) {
+    event.preventDefault();
+    const title = newTaskTitle.trim();
+    if (!title) return;
+
+    setKanbanTasks((currentTasks) => [
+      ...currentTasks,
+      {
+        id: `task-${Date.now()}`,
+        title,
+        category: newTaskCategory,
+        due: newTaskDue.trim() || "Sin fecha",
+        status: "todo",
+      },
+    ]);
+    setNewTaskTitle("");
+  }
+
+  function moveKanbanTask(taskId, status) {
+    setKanbanTasks((currentTasks) =>
+      currentTasks.map((task) => task.id === taskId ? { ...task, status } : task)
+    );
+  }
+
+  function deleteKanbanTask(taskId) {
+    setKanbanTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+  }
+
   function handleMapDestinationSelect({ lat, lng }) {
     const coordinates = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     setMapDestination({
@@ -751,18 +813,6 @@ function App() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-qr">
-            <QRCodeSVG
-              value={shareUrl}
-              size={104}
-              level="M"
-              bgColor="#ffffff"
-              fgColor="#14232c"
-              title={`Código QR para abrir AutoDash en ${shareUrl}`}
-            />
-            <span>Escanea desde la misma Wi-Fi</span>
-          </div>
-
           <div className="sustainability">
             <Leaf size={34} />
 
@@ -1316,41 +1366,215 @@ function App() {
             )}
 
             {activeNav === "Historial de consumo" && (
-              <div className="tab-grid">
-                <div className="tab-card">
-                  <span>Uso hoy</span>
-                  <strong>34.8 kWh</strong>
-                  <small>Promedio 5.9 kWh/100 km</small>
+              <div className="consumption-history">
+                <div className="consumption-summary">
+                  <div className="consumption-summary-card consumption-primary">
+                    <span>Consumo total</span>
+                    <strong>{consumptionPeriod === "week" ? "34.8" : "120.3"} <small>kWh</small></strong>
+                    <em>12% menos que el período anterior</em>
+                  </div>
+                  <div className="consumption-summary-card">
+                    <span>Promedio</span>
+                    <strong>{consumptionPeriod === "week" ? "5.9" : "5.7"} <small>kWh/100 km</small></strong>
+                    <em>Rendimiento eficiente</em>
+                  </div>
+                  <div className="consumption-summary-card">
+                    <span>Autonomía estimada</span>
+                    <strong>{estimatedAutonomyKm.toFixed(0)} <small>km</small></strong>
+                    <em>Batería restante: {batteryPercent}%</em>
+                  </div>
+                  <div className="consumption-summary-card">
+                    <span>Recorrido</span>
+                    <strong>{consumptionPeriod === "week" ? "589" : "2,108"} <small>km</small></strong>
+                    <em>5 viajes registrados</em>
+                  </div>
                 </div>
-                <div className="tab-card">
-                  <span>Viajes</span>
-                  <strong>5 recorridos</strong>
-                  <small>+12% vs. semana anterior</small>
-                </div>
-                <div className="tab-card">
-                  <span>Eficiencia</span>
-                  <strong>92%</strong>
-                  <small>Optimizado para ciudad</small>
+
+                <section className="consumption-chart-panel">
+                  <div className="consumption-panel-heading">
+                    <div>
+                      <span className="consumption-eyebrow">EVOLUCIÓN DEL CONSUMO</span>
+                      <h3>Historial de energía</h3>
+                    </div>
+                    <div className="consumption-period-switch" aria-label="Periodo del historial">
+                      <button
+                        type="button"
+                        className={consumptionPeriod === "week" ? "active" : ""}
+                        onClick={() => setConsumptionPeriod("week")}
+                      >
+                        Semana
+                      </button>
+                      <button
+                        type="button"
+                        className={consumptionPeriod === "month" ? "active" : ""}
+                        onClick={() => setConsumptionPeriod("month")}
+                      >
+                        Mes
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="consumption-chart">
+                    <div className="consumption-chart-scale" aria-hidden="true">
+                      <span>{consumptionPeriod === "week" ? "6 kWh" : "35 kWh"}</span>
+                      <span>{consumptionPeriod === "week" ? "4 kWh" : "24 kWh"}</span>
+                      <span>{consumptionPeriod === "week" ? "2 kWh" : "12 kWh"}</span>
+                      <span>0</span>
+                    </div>
+                    <div className="consumption-bars">
+                      {CONSUMPTION_HISTORY[consumptionPeriod].values.map((value, index) => {
+                        const maximum = consumptionPeriod === "week" ? 6 : 35;
+                        return (
+                          <div className="consumption-bar-column" key={CONSUMPTION_HISTORY[consumptionPeriod].labels[index]}>
+                            <div className="consumption-bar-track" title={`${value} kWh`}>
+                              <div
+                                className="consumption-bar"
+                                style={{ height: `${(value / maximum) * 100}%` }}
+                              >
+                                <span>{value} kWh</span>
+                              </div>
+                            </div>
+                            <small>{CONSUMPTION_HISTORY[consumptionPeriod].labels[index]}</small>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+
+                <div className="consumption-details">
+                  <section className="consumption-breakdown">
+                    <div className="consumption-panel-heading">
+                      <div>
+                        <span className="consumption-eyebrow">USO DE ENERGÍA</span>
+                        <h3>Desglose por conducción</h3>
+                      </div>
+                    </div>
+                    <div className="consumption-category-list">
+                      <div><span>Ciudad</span><strong>46%</strong><i style={{ "--category-width": "46%" }} /></div>
+                      <div><span>Autopista</span><strong>31%</strong><i style={{ "--category-width": "31%" }} /></div>
+                      <div><span>Refrigeración</span><strong>14%</strong><i style={{ "--category-width": "14%" }} /></div>
+                      <div><span>Otros</span><strong>9%</strong><i style={{ "--category-width": "9%" }} /></div>
+                    </div>
+                  </section>
+
+                  <section className="consumption-insights">
+                    <div className="consumption-panel-heading">
+                      <div>
+                        <span className="consumption-eyebrow">RENDIMIENTO</span>
+                        <h3>Consejos de eficiencia</h3>
+                      </div>
+                    </div>
+                    <div className="consumption-insight-list">
+                      <div><span>92%</span><p><strong>Conducción eficiente</strong><small>Acumulaste 128 km en modo ECO.</small></p></div>
+                      <div><span>-8%</span><p><strong>Menor consumo</strong><small>Tu rendimiento mejoró esta semana.</small></p></div>
+                      <div><span>18:30</span><p><strong>Mejor hora</strong><small>Menor consumo entre semana.</small></p></div>
+                    </div>
+                  </section>
                 </div>
               </div>
             )}
 
             {activeNav === "Mantenimiento" && (
-              <div className="tab-grid">
-                <div className="tab-card">
-                  <span>Estado general</span>
-                  <strong>Excelente</strong>
-                  <small>Vehículo listo para viaje</small>
+              <div className="kanban-board">
+                <form className="kanban-task-form" onSubmit={addKanbanTask}>
+                  <div className="kanban-form-title">
+                    <Plus size={18} />
+                    <input
+                      aria-label="Nueva tarea"
+                      value={newTaskTitle}
+                      onChange={(event) => setNewTaskTitle(event.target.value)}
+                      placeholder="Añadir tarea de mantenimiento o del día..."
+                    />
+                  </div>
+                  <select
+                    aria-label="Categoría de la tarea"
+                    value={newTaskCategory}
+                    onChange={(event) => setNewTaskCategory(event.target.value)}
+                  >
+                    <option>Vehículo</option>
+                    <option>Personal</option>
+                    <option>Hogar</option>
+                    <option>Trabajo</option>
+                  </select>
+                  <input
+                    aria-label="Fecha o plazo"
+                    value={newTaskDue}
+                    onChange={(event) => setNewTaskDue(event.target.value)}
+                    placeholder="Fecha o plazo"
+                  />
+                  <button type="submit" disabled={!newTaskTitle.trim()}>Agregar tarea</button>
+                </form>
+
+                <div className="kanban-overview">
+                  <span><strong>{kanbanTasks.filter((task) => task.status === "todo").length}</strong> pendientes</span>
+                  <span><strong>{kanbanTasks.filter((task) => task.status === "doing").length}</strong> en proceso</span>
+                  <span><strong>{kanbanTasks.filter((task) => task.status === "done").length}</strong> completadas</span>
                 </div>
-                <div className="tab-card">
-                  <span>Neumáticos</span>
-                  <strong>2.4 bar</strong>
-                  <small>Revisión en 1,800 km</small>
-                </div>
-                <div className="tab-card">
-                  <span>Siguiente servicio</span>
-                  <strong>14 días</strong>
-                  <small>Inspección general</small>
+
+                <div className="kanban-columns">
+                  {KANBAN_COLUMNS.map((column) => {
+                    const columnTasks = kanbanTasks.filter((task) => task.status === column.id);
+                    return (
+                      <section
+                        className={`kanban-column kanban-${column.id}`}
+                        key={column.id}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          if (draggedTaskId) moveKanbanTask(draggedTaskId, column.id);
+                          setDraggedTaskId(null);
+                        }}
+                      >
+                        <header>
+                          <div>
+                            <span style={{ "--column-color": column.color }} />
+                            <h3>{column.title}</h3>
+                          </div>
+                          <strong>{columnTasks.length}</strong>
+                        </header>
+
+                        <div className="kanban-task-list">
+                          {columnTasks.map((task) => (
+                            <article
+                              className="kanban-task"
+                              key={task.id}
+                              draggable
+                              onDragStart={() => setDraggedTaskId(task.id)}
+                              onDragEnd={() => setDraggedTaskId(null)}
+                            >
+                              <div className="kanban-task-top">
+                                <span className={`kanban-category ${task.category.toLowerCase()}`}>{task.category}</span>
+                                <button
+                                  type="button"
+                                  aria-label={`Eliminar ${task.title}`}
+                                  onClick={() => deleteKanbanTask(task.id)}
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                              <strong>{task.title}</strong>
+                              <small>{task.due}</small>
+                              <div className="kanban-task-actions">
+                                {KANBAN_COLUMNS.filter((target) => target.id !== column.id).map((target) => (
+                                  <button
+                                    type="button"
+                                    key={target.id}
+                                    onClick={() => moveKanbanTask(task.id, target.id)}
+                                  >
+                                    → {target.title}
+                                  </button>
+                                ))}
+                              </div>
+                            </article>
+                          ))}
+                          {!columnTasks.length && (
+                            <div className="kanban-empty">Arrastra una tarea aquí</div>
+                          )}
+                        </div>
+                      </section>
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -41,9 +41,6 @@
 .nav-item.active svg { color: #ffffff; }
 .nav-item.disabled { opacity: 1; }
 .sidebar-footer { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
-.sidebar-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px; border: 0; background: transparent; }
-.sidebar-qr svg { display: block; width: 104px; height: 104px; border-radius: 4px; }
-.sidebar-qr span { color: var(--muted); font-size: 0.7rem; text-align: center; }
 .sustainability { display: flex; align-items: center; gap: 12px; padding: 18px 8px 8px; color: var(--text-strong); font-size: 0.92rem; line-height: 1.3; font-weight: 600; }
 .sustainability svg { color: #58b99f; filter: none; }
 
@@ -662,6 +659,15 @@
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
 }
+.main-area:has(.kanban-board) {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.tab-view:has(.kanban-board) {
+  flex: 0 0 auto;
+  min-height: 100%;
+  height: max-content;
+}
 .tab-view-header {
   display: flex;
   align-items: center;
@@ -737,6 +743,467 @@
   font-size: 0.8rem;
 }
 
+.kanban-board {
+  display: flex;
+  min-height: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 12px;
+  overflow: visible;
+}
+.kanban-task-form {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 120px 130px auto;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-bg) 86%, white);
+}
+.kanban-form-title {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: rgba(127,143,151,0.12);
+  color: var(--muted);
+}
+.kanban-form-title {
+  width: 100%;
+  grid-column: auto;
+  min-height: 38px;
+}
+.kanban-form-title input {
+  width: 100%;
+  flex: 1;
+}
+.kanban-task-form input,
+.kanban-task-form select {
+  min-width: 0;
+  height: 38px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-strong);
+  font-size: 0.76rem;
+}
+.kanban-task-form input::placeholder,
+.kanban-task-form select:invalid {
+  color: var(--muted);
+  opacity: 0.86;
+}
+.kanban-task-form option {
+  background: var(--app-bg);
+  color: var(--text-strong);
+}
+.kanban-task-form select {
+  padding: 0 10px;
+  border-radius: 9px;
+  background: rgba(127,143,151,0.12);
+}
+.kanban-task-form > input {
+  padding: 0 10px;
+  border-radius: 9px;
+  background: rgba(127,143,151,0.12);
+}
+.kanban-task-form > button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: #58c69b;
+  color: #10271f;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.kanban-task-form > button:disabled { opacity: 0.45; cursor: default; }
+.kanban-overview {
+  display: flex;
+  gap: 20px;
+  padding: 0 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.kanban-overview strong { color: var(--text-strong); font-size: 0.88rem; }
+.kanban-columns {
+  display: grid;
+  min-height: 300px;
+  flex: 0 0 auto;
+  align-items: start;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+}
+.kanban-column {
+  display: flex;
+  min-height: 300px;
+  height: max-content;
+  flex-direction: column;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 14px;
+  background: rgba(127,143,151,0.08);
+}
+.kanban-column > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.kanban-column > header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kanban-column > header span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--column-color);
+}
+.kanban-column h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 0.84rem;
+}
+.kanban-column > header > strong {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(127,143,151,0.16);
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.kanban-task-list {
+  display: flex;
+  min-height: 220px;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 9px;
+}
+.kanban-task {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--app-bg) 82%, white);
+  box-shadow: 0 7px 16px rgba(8,17,25,0.08);
+  cursor: grab;
+}
+.kanban-task:active { cursor: grabbing; }
+.kanban-task-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kanban-category {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(74,168,216,0.16);
+  color: var(--text-strong);
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+.kanban-category.personal { background: rgba(178,125,216,0.18); }
+.kanban-category.hogar { background: rgba(221,164,79,0.18); }
+.kanban-category.trabajo { background: rgba(88,198,155,0.18); }
+.kanban-task-top button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.kanban-task-top button:hover { background: rgba(230,82,82,0.12); color: #d95d5d; }
+.kanban-task > strong { color: var(--text-strong); font-size: 0.82rem; line-height: 1.3; }
+.kanban-task > small { color: var(--muted); font-size: 0.66rem; }
+.kanban-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 4px;
+}
+.kanban-task-actions button {
+  padding: 4px 7px;
+  border: 1px solid rgba(127,143,151,0.18);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.58rem;
+  cursor: pointer;
+}
+.kanban-task-actions button:hover { border-color: #58c69b; color: var(--text-strong); }
+.kanban-empty {
+  display: grid;
+  min-height: 70px;
+  place-items: center;
+  border: 1px dashed rgba(127,143,151,0.28);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+@media (max-width: 980px) {
+  .kanban-task-form {
+    grid-template-columns: minmax(220px, 1fr) 120px 130px;
+  }
+  .kanban-task-form > button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .kanban-task-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .kanban-task-form > button {
+    grid-column: auto;
+  }
+  .kanban-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .kanban-overview {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+}
+
+.consumption-history {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.consumption-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.consumption-summary-card,
+.consumption-chart-panel,
+.consumption-breakdown,
+.consumption-insights {
+  border: 1px solid rgba(255,255,255,0.26);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--app-bg) 88%, rgba(255,255,255,0.92));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 12px 24px rgba(8,17,25,0.07);
+}
+.consumption-summary-card {
+  display: flex;
+  min-height: 108px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 15px 17px;
+}
+.consumption-summary-card > span,
+.consumption-eyebrow {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.consumption-summary-card strong {
+  margin: 5px 0 2px;
+  color: var(--text-strong);
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.05;
+}
+.consumption-summary-card strong small {
+  font-size: 0.56em;
+}
+.consumption-summary-card em {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+}
+.consumption-primary {
+  border-color: color-mix(in srgb, #5dc5a2 48%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--app-bg) 78%, #5dc5a2), color-mix(in srgb, var(--app-bg) 92%, white));
+}
+.consumption-primary em { color: #218d6c; font-weight: 700; }
+.consumption-chart-panel {
+  min-height: 270px;
+  padding: 16px 18px 12px;
+}
+.consumption-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.consumption-panel-heading h3 {
+  margin: 2px 0 0;
+  color: var(--text-strong);
+  font-size: 1rem;
+}
+.consumption-period-switch {
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(127,143,151,0.16);
+}
+.consumption-period-switch button {
+  min-height: 30px;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.consumption-period-switch button.active {
+  background: #5dc5a2;
+  color: #102d25;
+}
+.consumption-chart {
+  display: grid;
+  height: 205px;
+  grid-template-columns: 54px minmax(0,1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.consumption-chart-scale {
+  display: flex;
+  height: 178px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 1px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-align: right;
+}
+.consumption-bars {
+  display: flex;
+  height: 195px;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 10px;
+  border-bottom: 1px solid rgba(127,143,151,0.28);
+  background: repeating-linear-gradient(to bottom, rgba(127,143,151,0.14) 0 1px, transparent 1px 59px);
+}
+.consumption-bar-column {
+  display: flex;
+  width: min(72px, 13%);
+  height: 195px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+.consumption-bar-track {
+  display: flex;
+  width: 100%;
+  height: 178px;
+  align-items: flex-end;
+}
+.consumption-bar {
+  position: relative;
+  width: 100%;
+  min-height: 8px;
+  border-radius: 7px 7px 2px 2px;
+  background: linear-gradient(180deg, #72d9b9, #2fa98a);
+  box-shadow: 0 7px 16px rgba(47,169,138,0.18);
+  transition: height 280ms ease;
+}
+.consumption-bar span {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  color: var(--text-strong);
+  font-size: 0.58rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.consumption-bar-track:hover .consumption-bar span { opacity: 1; }
+.consumption-bar-column small {
+  height: 17px;
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+.consumption-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+  gap: 14px;
+}
+.consumption-breakdown,
+.consumption-insights {
+  min-height: 160px;
+  padding: 15px 17px;
+}
+.consumption-category-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px 18px;
+  margin-top: 17px;
+}
+.consumption-category-list div {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 5px;
+  padding-bottom: 8px;
+}
+.consumption-category-list span,
+.consumption-category-list strong {
+  color: var(--text-strong);
+  font-size: 0.72rem;
+}
+.consumption-category-list i {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5dc5a2 var(--category-width), rgba(127,143,151,0.16) var(--category-width));
+}
+.consumption-insight-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.consumption-insight-list > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(127,143,151,0.09);
+}
+.consumption-insight-list > div > span {
+  color: #319c7b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.consumption-insight-list p { display: flex; min-width: 0; flex-direction: column; margin: 0; }
+.consumption-insight-list strong,
+.consumption-insight-list small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.consumption-insight-list strong { color: var(--text-strong); font-size: 0.68rem; }
+.consumption-insight-list small { color: var(--muted); font-size: 0.58rem; }
+
 /* Colores por tema y ajustes de distribución para pantallas pequeñas. */
 [data-theme="light"] { --text: #1b2a33; --muted: #5c6d7b; --soft: #7d8d96; --dial-text: #172630; --dial-muted: #5c6d7b; --dial-accent: #0d9fe8; --dial-accent-strong: #1267d8; }
 [data-theme="midnight"] { --text: #edf5ff; --muted: #b8c9d6; --soft: #dce5ed; --dial-text: #f4fcff; --dial-muted: #9bd4e5; --dial-accent: #10b8f4; --dial-accent-strong: #146fe5; background: #152028; }
@@ -754,8 +1221,6 @@
   .nav-list { display: grid; grid-template-columns: repeat(2, 1fr); }
   .nav-list { transform: none; }
   .sidebar-footer { flex-direction: row; align-items: center; justify-content: space-between; }
-  .sidebar-qr { flex-direction: row; }
-  .sidebar-qr svg { width: 72px; height: 72px; }
   .topbar { align-items: flex-start; flex-direction: column; }
   .topbar-info { width: 100%; justify-content: space-between; }
   .connection { display: none; }
