@@ -139,6 +139,7 @@ export function MultimediaPanel() {
   const hlsInstanceRef = useRef(null);
   const spotifyPlayerRef = useRef(null);
   const spotifyAccessTokenProviderRef = useRef(null);
+  const spotifyDeviceIdRef = useRef("");
 
   useEffect(() => {
     spotifyAccessTokenProviderRef.current = getSpotifyAccessToken;
@@ -274,12 +275,14 @@ export function MultimediaPanel() {
 
       player.addListener("ready", ({ device_id }) => {
         if (isCancelled) return;
+        spotifyDeviceIdRef.current = device_id;
         setSpotifyDeviceId(device_id);
         setSpotifyPlayerStatus("ready");
         setSpotifyPlayerError("");
       });
       player.addListener("not_ready", () => {
         if (isCancelled) return;
+        spotifyDeviceIdRef.current = "";
         setSpotifyDeviceId("");
         setSpotifyPlayerStatus("offline");
       });
@@ -499,16 +502,27 @@ export function MultimediaPanel() {
     setSpotifyError("");
     setSpotifyNotice("");
 
-    if (!spotifyPlayerRef.current || !spotifyDeviceId) {
-      setSpotifyNotice("AutoDash Web se está conectando. Espera a que aparezca como dispositivo disponible y vuelve a elegir la canción.");
+    if (!spotifyPlayerRef.current) {
+      setSpotifyNotice("AutoDash Web se está conectando. Espera unos segundos y vuelve a elegir la canción.");
       return;
     }
 
     try {
       await spotifyPlayerRef.current.activateElement();
       const accessToken = await getSpotifyAccessToken();
-      const response = await fetch(
-        `${SPOTIFY_API_URL}/me/player/play?device_id=${encodeURIComponent(spotifyDeviceId)}`,
+
+      let activeDeviceId = spotifyDeviceIdRef.current;
+      for (let attempt = 0; attempt < 20 && !activeDeviceId; attempt += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 250));
+        activeDeviceId = spotifyDeviceIdRef.current;
+      }
+
+      if (!activeDeviceId) {
+        throw new Error("AutoDash Web todavía se está preparando como dispositivo. Espera a que aparezca disponible y vuelve a elegir la canción.");
+      }
+
+      const playResponse = await fetch(
+        `${SPOTIFY_API_URL}/me/player/play?device_id=${encodeURIComponent(activeDeviceId)}`,
         {
           method: "PUT",
           headers: {
@@ -518,6 +532,31 @@ export function MultimediaPanel() {
           body: JSON.stringify({ uris: [track.uri] }),
         }
       );
+      let response = playResponse;
+
+      if (playResponse.status === 404) {
+        await fetch(`${SPOTIFY_API_URL}/me/player`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ device_ids: [activeDeviceId], play: false }),
+        });
+
+        await new Promise((resolve) => window.setTimeout(resolve, 300));
+        response = await fetch(
+          `${SPOTIFY_API_URL}/me/player/play?device_id=${encodeURIComponent(activeDeviceId)}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ uris: [track.uri] }),
+          }
+        );
+      }
 
       if (!response.ok) {
         const result = await response.json().catch(() => ({}));
@@ -594,6 +633,7 @@ export function MultimediaPanel() {
     setSpotifyNotice("Sesión de Spotify cerrada.");
     setSpotifyError("");
     setSpotifyPlayerStatus("disconnected");
+    spotifyDeviceIdRef.current = "";
     setSpotifyDeviceId("");
     setCurrentPlaybackTrack(null);
     setIsSpotifyPlaying(false);

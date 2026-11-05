@@ -30,6 +30,17 @@ import { adjustBatteryValue, batteryFromDistance, clampBattery } from "./utils/b
 // Consumo de referencia: una carga completa permite recorrer 25 km.
 const KM_PER_FULL_BATTERY = 25;
 
+const BACKGROUND_COLOR_PRESETS = [
+  "#dfe7ee",
+  "#d9e5df",
+  "#dce4f0",
+  "#e5dfed",
+  "#eadfd2",
+  "#e6e0c7",
+  "#cfe2e1",
+  "#d7d9df",
+];
+
 // Presenta valores decimales y evita mostrar datos inválidos en pantalla.
 function formatNumber(value, digits = 1) {
   return Number.isFinite(value) ? value.toFixed(digits) : "--";
@@ -425,6 +436,8 @@ function App() {
   const [backgroundColor, setBackgroundColor] = useState(
     () => localStorage.getItem("autodash-background") || "#dfe7ee"
   );
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const colorPickerRef = useRef(null);
   const [now, setNow] = useState(new Date());
   const [consumptionPeriod, setConsumptionPeriod] = useState("week");
   const [kanbanTasks, setKanbanTasks] = useState(() => {
@@ -564,6 +577,27 @@ function App() {
       `${gaugeAccent}88`
     );
   }, [backgroundColor]);
+
+  useEffect(() => {
+    if (!colorPickerOpen) return undefined;
+
+    const closeColorPicker = (event) => {
+      if (!colorPickerRef.current?.contains(event.target)) {
+        setColorPickerOpen(false);
+      }
+    };
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setColorPickerOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeColorPicker);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeColorPicker);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [colorPickerOpen]);
 
   // Cada nueva posición GPS inicia una consulta meteorológica para esa ubicación.
   useEffect(() => {
@@ -866,15 +900,67 @@ function App() {
               <span>{formattedDate}</span>
             </div>
 
-            <label className="color-picker" title="Personalizar fondo">
-              <Palette size={18} />
-              <input
-                type="color"
-                value={backgroundColor}
-                aria-label="Color de fondo de la aplicación"
-                onChange={(event) => setBackgroundColor(event.target.value)}
-              />
-            </label>
+            <div className="color-picker-control" ref={colorPickerRef}>
+              <button
+                className="color-picker-trigger"
+                type="button"
+                title="Personalizar fondo"
+                aria-label="Personalizar fondo"
+                aria-expanded={colorPickerOpen}
+                onClick={() => setColorPickerOpen((current) => !current)}
+              >
+                <Palette size={18} />
+                <span
+                  className="color-picker-current"
+                  style={{ "--selected-color": backgroundColor }}
+                  aria-hidden="true"
+                />
+              </button>
+
+              {colorPickerOpen && (
+                <div className="color-picker-panel" role="dialog" aria-label="Color de fondo">
+                  <div className="color-picker-heading">
+                    <div>
+                      <strong>Fondo</strong>
+                      <span>Elige el tono de la interfaz</span>
+                    </div>
+                    <span className="color-picker-code">{backgroundColor.toUpperCase()}</span>
+                  </div>
+
+                  <div className="color-presets" aria-label="Colores sugeridos">
+                    {BACKGROUND_COLOR_PRESETS.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        className={`color-preset${backgroundColor.toLowerCase() === color ? " active" : ""}`}
+                        style={{ "--preset-color": color }}
+                        aria-label={`Usar color ${color}`}
+                        aria-pressed={backgroundColor.toLowerCase() === color}
+                        onClick={() => setBackgroundColor(color)}
+                      />
+                    ))}
+                  </div>
+
+                  <label className="custom-color-row">
+                    <span
+                      className="custom-color-preview"
+                      style={{ "--selected-color": backgroundColor }}
+                      aria-hidden="true"
+                    />
+                    <span>
+                      <strong>Color personalizado</strong>
+                      <small>Seleccionar otro tono</small>
+                    </span>
+                    <input
+                      type="color"
+                      value={backgroundColor}
+                      aria-label="Color personalizado de fondo"
+                      onChange={(event) => setBackgroundColor(event.target.value)}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
 
             <button
               className="theme-button"
