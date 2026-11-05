@@ -15,7 +15,7 @@ function normalizeSpeech(text) {
     .trim();
 }
 
-export function VoiceAssistant({ battery, speed, weather, onNavigate }) {
+export function VoiceAssistant({ battery, speed, weather, onNavigate, launcherPlacement = "floating" }) {
   const [open, setOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(true);
@@ -170,7 +170,7 @@ export function VoiceAssistant({ battery, speed, weather, onNavigate }) {
         </section>
       )}
       {!open && (
-        <button className="voice-assistant-launcher" type="button" aria-label="Abrir asistente de voz" onClick={() => setOpen(true)}>
+        <button className={`voice-assistant-launcher ${launcherPlacement}`} type="button" aria-label="Abrir asistente de voz" onClick={() => setOpen(true)}>
           <Mic size={22} /><span>Asistente de voz</span>
         </button>
       )}

@@ -18,6 +18,17 @@
   cursor: pointer;
 }
 
+.voice-assistant-launcher.topbar {
+  position: static;
+  z-index: auto;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-strong);
+}
+
 .voice-assistant-panel {
   position: fixed;
   right: 22px;
@@ -136,6 +147,7 @@
 
 @media (max-width: 760px) {
   .voice-assistant-launcher { right: 14px; bottom: 14px; }
+  .voice-assistant-launcher.topbar { right: auto; bottom: auto; width: 42px; }
   .voice-assistant-launcher span { display: none; }
   .voice-assistant-launcher { width: 48px; justify-content: center; padding: 0; }
   .voice-assistant-panel { right: 16px; bottom: 16px; }

@@ -825,12 +825,6 @@ function App() {
         <div className="brand">
           <div className="brand-mark">
             <CarFront size={34} />
-            <VoiceAssistant
-              battery={manualBattery}
-              speed={demoSpeed}
-              weather={weather}
-              onNavigate={setActiveNav}
-            />
           </div>
 
           <div>
@@ -901,6 +895,13 @@ function App() {
               <Wifi size={20} />
               GPS
             </span>
+            <VoiceAssistant
+              battery={manualBattery}
+              speed={demoSpeed}
+              weather={weather}
+              onNavigate={setActiveNav}
+              launcherPlacement="topbar"
+            />
 
             <div className="date-block">
               <span>{formattedTime}</span>
