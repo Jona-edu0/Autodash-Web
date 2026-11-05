@@ -269,7 +269,7 @@
 .media-selected-track div { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
 .media-selected-track strong { overflow: hidden; color: var(--text-strong); font-size: 0.84rem; text-overflow: ellipsis; white-space: nowrap; }
 .media-selected-track span { overflow: hidden; color: var(--muted); font-size: 0.72rem; text-overflow: ellipsis; white-space: nowrap; }
-.spotify-embed { width: 100%; min-height: 152px; border: 0; border-radius: 12px; background: rgba(0,0,0,0.08); }
+.deezer-embed { width: 100%; min-height: 152px; border: 0; border-radius: 12px; background: rgba(0,0,0,0.08); }
 .media-player-placeholder {
   display: flex;
   flex: 1;
@@ -511,7 +511,7 @@
 .media-featured-copy strong { overflow: hidden; color: #f5f8f6; font-size: clamp(1.25rem, 1.8vw, 1.8rem); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .media-featured-copy > span:not(.media-featured-label) { overflow: hidden; color: #d2dbd5; font-size: 0.88rem; text-overflow: ellipsis; white-space: nowrap; }
 .media-featured-copy small { overflow: hidden; color: #aab5ad; font-size: 0.72rem; text-overflow: ellipsis; white-space: nowrap; }
-.multimedia-music-mode .spotify-embed { min-height: 152px; border-radius: 12px; background: #111411; }
+.multimedia-music-mode .deezer-embed { min-height: 152px; border-radius: 12px; background: #111411; }
 .multimedia-music-mode .media-player-placeholder {
   align-items: center;
   justify-content: center;
@@ -624,7 +624,7 @@
   .media-placeholder-disc { width: min(58vw, 190px); }
 }
 
-/* Immersive Spotify-style player */
+/* Immersive music player */
 .multimedia-music-mode .media-content {
   grid-template-columns: minmax(280px, 0.82fr) minmax(420px, 1.18fr);
 }
@@ -641,27 +641,32 @@
 
 .multimedia-music-mode .media-now-playing {
   position: relative;
-  overflow-y: auto;
-  padding-bottom: 18px;
-  scrollbar-width: thin;
+  overflow: hidden;
+  padding-bottom: 14px;
 }
 
 .multimedia-music-mode .media-featured-track {
   position: relative;
   display: grid;
-  min-height: 278px;
+  min-height: 0;
   grid-template-columns: minmax(180px, 0.92fr) minmax(150px, 0.78fr);
   align-items: end;
   gap: 22px;
-  padding: 8px 4px 0;
+  padding: 0 4px;
 }
 
 .multimedia-music-mode .media-featured-artwork {
-  width: 100%;
-  max-width: 270px;
+  width: min(100%, 270px, 31vh);
+  height: min(270px, 31vh);
   justify-self: center;
   border-radius: 12px;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.48);
+}
+
+.multimedia-music-mode .media-featured-artwork img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .multimedia-music-mode .media-featured-copy {
@@ -781,7 +786,12 @@
 
   .multimedia-music-mode .media-featured-track {
     grid-template-columns: minmax(150px, 0.95fr) minmax(120px, 1.05fr);
-    min-height: 220px;
+    min-height: 180px;
+  }
+
+  .multimedia-music-mode .media-featured-artwork {
+    width: min(100%, 180px);
+    height: min(100%, 180px);
   }
 
   .media-related-list {

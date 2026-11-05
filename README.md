@@ -17,13 +17,7 @@ npm install
 npm run dev
 ```
 
-El servidor HTTPS permite usar GPS y abrir la app desde la red local. Para iniciar sesión en Spotify durante desarrollo, usa el servidor loopback HTTP compatible con Spotify:
-
-```bash
-npm run dev:spotify
-```
-
-Abre `http://127.0.0.1:5174/Autodash-Web/` en el mismo equipo. Registra esta Redirect URI en Spotify: `http://127.0.0.1:5174/Autodash-Web/`. Spotify no permite `localhost` como Redirect URI; `npm run dev` HTTPS sigue disponible para el GPS y la LAN.
+El servidor HTTPS permite usar GPS y abrir la app desde la red local.
 
 ## Abrir desde otro dispositivo de la misma red
 
@@ -44,15 +38,9 @@ El clima actual y el índice UV se consultan automáticamente con Open-Meteo cua
 
 ## Multimedia
 
-La pestaña Multimedia busca canciones con Spotify Web API y puede aparecer como el dispositivo **AutoDash Web** en Spotify Connect. La reproducción en el navegador y la transferencia desde el teléfono requieren una cuenta Spotify Premium y autorización de estos scopes: `streaming`, `user-read-playback-state` y `user-modify-playback-state`.
+La pestaña Multimedia busca canciones mediante la API pública de Deezer. La reproducción está disponible como vista previa gratuita de 30 segundos, sin iniciar sesión ni configurar credenciales.
 
-1. La app incluye el Client ID público configurado para AutoDash, así que no hace falta volver a pegarlo en GitHub Pages. Para usar otro, puedes reemplazar `DEFAULT_SPOTIFY_CLIENT_ID`, definir `VITE_SPOTIFY_CLIENT_ID` antes del build o cambiarlo desde Multimedia.
-2. En la configuración de la aplicación de Spotify, registra como Redirect URI `https://jona-edu0.github.io/Autodash-Web/` para GitHub Pages y `http://127.0.0.1:5174/Autodash-Web/` para desarrollo local. Spotify no permite `localhost` como Redirect URI.
-3. En Multimedia, desconecta y vuelve a conectar Spotify para autorizar los scopes nuevos. Espera a que aparezca **AutoDash Web disponible**. En el teléfono, abre **Dispositivos disponibles** y selecciona **AutoDash Web**.
-
-No configures ni compartas un Client Secret; la app usa Authorization Code con PKCE. Spotify Connect/Web Playback requiere Premium; sin ese plan puede estar disponible la búsqueda, pero no la reproducción/transferencia al navegador.
-
-La radio online usa el directorio Radio Browser y necesita conexión a Internet. Una aplicación web no puede sintonizar frecuencias FM físicas sin un receptor conectado. La selección de salida Bluetooth está disponible únicamente en navegadores que implementan `selectAudioOutput`; para Spotify, elige Bluetooth como salida predeterminada del dispositivo.
+La radio online usa el directorio Radio Browser y necesita conexión a Internet. Una aplicación web no puede sintonizar frecuencias FM físicas sin un receptor conectado. La selección de salida Bluetooth está disponible únicamente en navegadores que implementan `selectAudioOutput`.
 
 ## Compilar y previsualizar
 
