@@ -799,6 +799,45 @@
   max-height: 430px;
   filter: drop-shadow(0 24px 28px rgba(8,17,25,0.22));
 }
+.vehicle-3d-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 72%, rgba(88,198,155,.18), transparent 38%),
+    linear-gradient(145deg, rgba(255,255,255,.025), rgba(24,52,44,.12));
+}
+.vehicle-3d-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+.vehicle-3d-view canvas:active { cursor: grabbing; }
+.vehicle-3d-hint {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  background: rgba(7,18,15,.66);
+  color: rgba(235,255,247,.75);
+  font-size: .58rem;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+.vehicle-3d-error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text-strong);
+  z-index: 2;
+}
 .vehicle-frame { transform-origin: center; animation: vehicleFloat 4s ease-in-out infinite; }
 @keyframes vehicleFloat {
   0%, 100% { transform: translateY(0); }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Polyline, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { DigitalSpeedGauge } from "./components/DigitalSpeedGauge";
 import { MultimediaPanel } from "./components/MultimediaPanel";
+import { Vehicle3DViewer } from "./components/Vehicle3DViewer";
 import "leaflet/dist/leaflet.css";
 import {
   BatteryCharging,
@@ -1490,79 +1491,7 @@ function App() {
                   </div>
 
                   <div className="vehicle-visual">
-                    <svg className="vehicle-blueprint" viewBox="0 0 760 430" role="img" aria-label="Plano técnico 3D del vehículo solar">
-                      <defs>
-                        <linearGradient id="vehicleBody" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#c8f3df" />
-                          <stop offset="55%" stopColor="#63caa4" />
-                          <stop offset="100%" stopColor="#287e67" />
-                        </linearGradient>
-                        <linearGradient id="vehicleGlass" x1="0" y1="0" x2="0.8" y2="1">
-                          <stop offset="0%" stopColor="#d9f4ff" stopOpacity=".92" />
-                          <stop offset="100%" stopColor="#3a7181" stopOpacity=".9" />
-                        </linearGradient>
-                        <linearGradient id="solarPanel" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#2e6173" />
-                          <stop offset="100%" stopColor="#102b3b" />
-                        </linearGradient>
-                      </defs>
-
-                      <ellipse cx="385" cy="360" rx="280" ry="55" fill="#07150f" opacity=".24" />
-                      <g className="vehicle-frame">
-                        <path d="M146 255 235 176 565 176 638 249 578 302 197 302Z" fill="none" stroke="#9df0cf" strokeWidth="8" strokeLinejoin="round" opacity=".72" />
-                        <path d="M146 255 197 302 578 302 638 249 554 225 212 225Z" fill="url(#vehicleBody)" stroke="#c9f8e7" strokeWidth="3" />
-                        <path d="M212 225 274 167 520 167 554 225Z" fill="#3ba77f" stroke="#bfeeda" strokeWidth="3" />
-                        <path d="M274 167 315 118 490 118 520 167Z" fill="url(#vehicleGlass)" stroke="#cfeeff" strokeWidth="3" />
-                        <path d="M315 118 345 91 475 91 490 118Z" fill="#173943" stroke="#70c7d4" strokeWidth="2" />
-                        <path d="M274 167 315 118 490 118 520 167 520 225 212 225Z" fill="url(#vehicleGlass)" opacity=".52" />
-                        <path d="M320 120 402 120 402 190 286 190Z" fill="#bce7ef" opacity=".28" />
-                        <path d="M408 120 482 120 509 190 408 190Z" fill="#c5edf3" opacity=".24" />
-                        <path d="M402 120V190M350 120 330 190M452 120l38 70" stroke="#dff8ff" strokeWidth="2" opacity=".65" />
-
-                        <path d="M286 163 516 163 541 189 270 189Z" fill="url(#solarPanel)" stroke="#81aebe" strokeWidth="2" />
-                        <path d="M320 163l18 26M356 163l18 26M392 163l18 26M428 163l18 26M464 163l18 26M286 176h255" stroke="#87bdd0" strokeWidth="1.5" opacity=".72" />
-
-                        <g className="vehicle-wheel">
-                          <ellipse cx="210" cy="298" rx="48" ry="62" fill="#11191a" stroke="#73a290" strokeWidth="5" />
-                          <ellipse cx="210" cy="298" rx="27" ry="37" fill="#314842" stroke="#b8ddd1" strokeWidth="4" />
-                          <ellipse cx="210" cy="298" rx="10" ry="14" fill="#90d4bb" />
-                        </g>
-                        <g className="vehicle-wheel">
-                          <ellipse cx="548" cy="298" rx="48" ry="62" fill="#11191a" stroke="#73a290" strokeWidth="5" />
-                          <ellipse cx="548" cy="298" rx="27" ry="37" fill="#314842" stroke="#b8ddd1" strokeWidth="4" />
-                          <ellipse cx="548" cy="298" rx="10" ry="14" fill="#90d4bb" />
-                        </g>
-                        <g className="vehicle-wheel front-wheel">
-                          <ellipse cx="145" cy="256" rx="39" ry="52" fill="#0c1515" stroke="#58766c" strokeWidth="5" />
-                          <ellipse cx="145" cy="256" rx="18" ry="27" fill="#354d46" stroke="#9ccaba" strokeWidth="4" />
-                        </g>
-                        <g className="vehicle-wheel front-wheel">
-                          <ellipse cx="626" cy="249" rx="39" ry="52" fill="#0c1515" stroke="#58766c" strokeWidth="5" />
-                          <ellipse cx="626" cy="249" rx="18" ry="27" fill="#354d46" stroke="#9ccaba" strokeWidth="4" />
-                        </g>
-
-                        <rect x="330" y="242" width="92" height="38" rx="8" fill="#183b32" stroke="#89d8ba" strokeWidth="2" />
-                        <path d="M344 242v38M365 242v38M386 242v38M407 242v38" stroke="#89d8ba" opacity=".55" />
-                      </g>
-
-                      <g className="vehicle-callout callout-panel">
-                        <path d="M394 155H608L636 128" />
-                        <circle cx="636" cy="128" r="5" />
-                        <text x="647" y="124">Panel solar</text>
-                        <text x="647" y="141" className="vehicle-callout-value">Activo · 86%</text>
-                      </g>
-                      <g className="vehicle-callout callout-battery">
-                        <path d="M375 260H132L108 282" />
-                        <circle cx="108" cy="282" r="5" />
-                        <text x="25" y="279">Banco de baterías</text>
-                        <text x="25" y="296" className="vehicle-callout-value">78% · 92% vida</text>
-                      </g>
-                      <g className="vehicle-callout callout-wheel">
-                        <path d="M548 300H668L691 283" />
-                        <circle cx="691" cy="283" r="5" />
-                        <text x="650" y="324">4 llantas</text>
-                      </g>
-                    </svg>
+                    <Vehicle3DViewer />
                   </div>
                 </section>
 
