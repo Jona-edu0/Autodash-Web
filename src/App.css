@@ -806,9 +806,7 @@
   min-height: 360px;
   overflow: hidden;
   border-radius: 14px;
-  background:
-    radial-gradient(circle at 50% 72%, rgba(88,198,155,.18), transparent 38%),
-    linear-gradient(145deg, rgba(255,255,255,.025), rgba(24,52,44,.12));
+  background: transparent;
 }
 .vehicle-3d-view canvas {
   display: block;

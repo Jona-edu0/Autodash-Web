@@ -13,7 +13,7 @@ export function Vehicle3DViewer() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    camera.position.set(5.6, 2.8, 7.2);
+    camera.position.set(4.8, 2.35, 6.1);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -28,9 +28,9 @@ export function Vehicle3DViewer() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.055;
     controls.enablePan = false;
-    controls.minDistance = 5;
-    controls.maxDistance = 13;
-    controls.target.set(0, 0.7, 0);
+    controls.minDistance = 4;
+    controls.maxDistance = 11;
+    controls.target.set(0, 0.45, 0);
 
     scene.add(new THREE.HemisphereLight(0xe7fff6, 0x17231f, 2.2));
     const keyLight = new THREE.DirectionalLight(0xffffff, 3.6);
@@ -40,15 +40,6 @@ export function Vehicle3DViewer() {
     const rimLight = new THREE.DirectionalLight(0x72dcb4, 2.1);
     rimLight.position.set(-7, 3, -4);
     scene.add(rimLight);
-
-    const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(5.2, 64),
-      new THREE.MeshStandardMaterial({ color: 0x19342c, transparent: true, opacity: 0.28, roughness: 0.82 })
-    );
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -0.02;
-    floor.receiveShadow = true;
-    scene.add(floor);
 
     const loader = new GLTFLoader();
     const modelUrl = `${import.meta.env.BASE_URL}models/porsche/scene.gltf`;
@@ -68,7 +59,7 @@ export function Vehicle3DViewer() {
         const bounds = new THREE.Box3().setFromObject(model);
         const size = bounds.getSize(new THREE.Vector3());
         const center = bounds.getCenter(new THREE.Vector3());
-        const scale = 4.2 / Math.max(size.x, size.y, size.z);
+        const scale = 5.6 / Math.max(size.x, size.y, size.z);
         model.scale.setScalar(scale);
         model.position.sub(center.multiplyScalar(scale));
         model.rotation.y = -0.35;
