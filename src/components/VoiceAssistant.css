@@ -39,9 +39,18 @@
   height: min(520px, calc(100vh - 44px));
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(112, 124, 135, 0.28);
   border-radius: 18px;
+  background: #eef2f3;
+  color: #26343a;
   box-shadow: 0 24px 60px rgba(7, 20, 25, 0.34);
+  opacity: 0.99;
+}
+
+[data-theme="midnight"] .voice-assistant-panel {
+  border-color: rgba(150, 177, 185, 0.26);
+  background: #1b272c;
+  color: #edf4f5;
 }
 
 .voice-assistant-panel header {
@@ -50,7 +59,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(112, 124, 135, 0.18);
+  background: #e4eaec;
+}
+
+[data-theme="midnight"] .voice-assistant-panel header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: #223036;
 }
 
 .voice-assistant-brand,
@@ -93,8 +108,11 @@
 
 .voice-message.assistant {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.14);
+  background: #dbe3e5;
+  color: #26343a;
 }
+
+[data-theme="midnight"] .voice-message.assistant { background: #304047; color: #edf4f5; }
 
 .voice-message.user {
   align-self: flex-end;
@@ -114,17 +132,26 @@
   gap: 5px;
   align-items: center;
   padding: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(112, 124, 135, 0.18);
+  background: #e4eaec;
 }
+
+[data-theme="midnight"] .voice-assistant-panel form { border-top-color: rgba(255, 255, 255, 0.08); background: #223036; }
 
 .voice-assistant-panel form input {
   min-width: 0;
   height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(112, 124, 135, 0.32);
   border-radius: 19px;
   outline: none;
-  background: rgba(255, 255, 255, 0.09);
-  color: var(--text-strong);
+  background: #fff;
+  color: #26343a;
+}
+
+[data-theme="midnight"] .voice-assistant-panel form input {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #172126;
+  color: #edf4f5;
   padding: 0 12px;
   font: inherit;
 }

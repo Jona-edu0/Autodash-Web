@@ -29,6 +29,11 @@ export function VoiceAssistant({ battery, speed, weather, onNavigate, launcherPl
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, listening]);
 
+  useEffect(() => () => {
+    recognitionRef.current?.abort();
+    window.speechSynthesis?.cancel();
+  }, []);
+
   function speak(text) {
     if (!speaking || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
@@ -134,7 +139,12 @@ export function VoiceAssistant({ battery, speed, weather, onNavigate, launcherPl
     };
     recognitionRef.current = recognition;
     setStatus("");
-    recognition.start();
+    try {
+      recognition.start();
+    } catch {
+      setListening(false);
+      setStatus("El reconocimiento ya está activo. Inténtalo de nuevo.");
+    }
   }
 
   return (
