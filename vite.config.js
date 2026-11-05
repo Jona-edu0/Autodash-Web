@@ -10,21 +10,25 @@ const lanAddress = Object.values(networkInterfaces())
   ?.address || "localhost";
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: '/Autodash-Web/',
-  plugins: [
-    react(),
-    // Genera certificados para que los navegadores puedan usar GPS por HTTPS.
-    mkcert({ hosts: ["localhost", "127.0.0.1", lanAddress] }),
-  ],
-  define: {
-    __AUTODASH_LAN_HOST__: JSON.stringify(lanAddress),
-  },
-  // Escucha en todas las interfaces para permitir acceso desde la red local.
-  server: {
-    host: "0.0.0.0",
-  },
-  preview: {
-    host: "0.0.0.0",
-  },
-})
+export default defineConfig(({ mode }) => {
+  const plugins = [react()];
+
+  if (mode !== "spotify-local") {
+    // Genera certificados HTTPS para GPS y acceso desde la red local.
+    plugins.push(mkcert({ hosts: ["localhost", "127.0.0.1", lanAddress] }));
+  }
+
+  return {
+    base: '/Autodash-Web/',
+    plugins,
+    define: {
+      __AUTODASH_LAN_HOST__: JSON.stringify(lanAddress),
+    },
+    server: {
+      host: "0.0.0.0",
+    },
+    preview: {
+      host: "0.0.0.0",
+    },
+  };
+});
