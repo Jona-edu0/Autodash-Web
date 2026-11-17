@@ -121,13 +121,7 @@ export function DigitalSpeedGauge({ value = 0, max = 120, accent = "#7de0ff" }) 
       </svg>
 
       {/* Lectura central en cifras, sincronizada con la posición del arco. */}
-      <div
-        className="digital-gauge-readout"
-        style={{
-          borderColor: `${safeAccent}99`,
-          boxShadow: `0 0 18px ${safeAccent}22, inset 0 0 14px ${safeAccent}1a`,
-        }}
-      >
+      <div className="digital-gauge-readout">
         <strong style={{ color: "var(--text-strong, #ffffff)" }}>
           {Math.round(safeValue).toString()}
         </strong>

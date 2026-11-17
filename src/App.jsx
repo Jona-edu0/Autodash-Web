@@ -7,6 +7,7 @@ import { VoiceAssistant } from "./components/VoiceAssistant";
 import "leaflet/dist/leaflet.css";
 import {
   BatteryCharging,
+  ArrowRight,
   CarFront,
   CloudSun,
   Gauge,
@@ -17,6 +18,7 @@ import {
   Palette,
   Plus,
   Settings,
+  ShieldCheck,
   SlidersHorizontal,
   Trash2,
   UserCircle2,
@@ -94,7 +96,7 @@ function getGaugeAccent(hexColor) {
   const blue = Number.parseInt(hex.slice(4, 6), 16);
   const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
 
-  return luminance > 155 ? "#f05b67" : "#ff5f6d";
+  return luminance > 155 ? "#167c78" : "#7acbb3";
 }
 
 function haversineKm(pointA, pointB) {
@@ -427,8 +429,23 @@ function NavigationMap({ userLocation, selectedDestination, navigationDestinatio
 }
 
 function App() {
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [welcomeStage, setWelcomeStage] = useState("brand");
+
+  useEffect(() => {
+    if (!showWelcome) return undefined;
+
+    const transitionDelay = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? 1800
+      : 4200;
+    const timer = window.setTimeout(() => setWelcomeStage("safety"), transitionDelay);
+
+    return () => window.clearTimeout(timer);
+  }, [showWelcome]);
+
   // Datos interactivos para la demostración y el control manual de batería.
   const [demoSpeed, setDemoSpeed] = useState(0);
+  const [selectedGear, setSelectedGear] = useState("P");
   const [manualBattery, setManualBattery] = useState(78);
   const [manualBatteryInput, setManualBatteryInput] = useState("78");
 
@@ -815,6 +832,96 @@ function App() {
     setSelectedDestination("map");
   }
 
+  if (showWelcome) {
+    return (
+      <main
+        className={`welcome-screen ${welcomeStage === "safety" ? "welcome-screen-message" : ""}`}
+        aria-label="Bienvenida a AutoDash"
+      >
+        <div className="welcome-glow welcome-glow-top" aria-hidden="true" />
+        <div className="welcome-glow welcome-glow-bottom" aria-hidden="true" />
+        <div className="welcome-grid" aria-hidden="true" />
+
+        <section
+          className="welcome-brand"
+          aria-label="AutoDash"
+          aria-hidden={welcomeStage === "safety"}
+        >
+          <div className="welcome-emblem">
+            <span className="welcome-emblem-ring" aria-hidden="true" />
+            <svg
+              className="welcome-emblem-art"
+              viewBox="0 0 112 112"
+              fill="none"
+              role="img"
+              aria-label="AutoDash: automóvil protegido"
+            >
+              <path
+                d="M56 8 94 23v27c0 25-15 43-38 54C33 93 18 75 18 50V23L56 8Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <path
+                d="m31 55 5-15a7 7 0 0 1 7-5h26a7 7 0 0 1 7 5l5 15 5 5v16h-9v-7H35v7h-9V60l5-5Z"
+                fill="currentColor"
+                fillOpacity=".12"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              <path
+                d="m39 53 4-11h26l4 11H39Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <path d="M33 59h8m32 0h8M56 78v-7m0-7v-2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            <span className="welcome-emblem-spark welcome-emblem-spark-one" aria-hidden="true" />
+            <span className="welcome-emblem-spark welcome-emblem-spark-two" aria-hidden="true" />
+          </div>
+          <p className="welcome-eyebrow">TU VIAJE, EN BUENAS MANOS</p>
+          <h1 className="welcome-title">Auto<span>Dash</span></h1>
+          <p className="welcome-subtitle">Conduce con confianza.</p>
+        </section>
+
+        <section
+          className="welcome-safety"
+          aria-label="Consejos de seguridad"
+          aria-hidden={welcomeStage !== "safety"}
+        >
+          <div className="welcome-safety-icon"><ShieldCheck size={28} strokeWidth={1.8} /></div>
+          <div>
+            <p className="welcome-safety-label">UN RECORDATORIO ANTES DE SALIR</p>
+            <h2>Tu seguridad va primero.</h2>
+            <p className="welcome-safety-copy">
+              La tecnología te acompaña, pero tu atención hace la diferencia. Sigue las normas de
+              tránsito y adapta tu conducción a las condiciones del camino.
+            </p>
+            <ul className="welcome-safety-tips">
+              <li>Respeta las señales y los límites de velocidad.</li>
+              <li>Mantén una distancia segura y evita usar el celular al volante.</li>
+              <li>Usa el cinturón y detente en un lugar seguro si necesitas descansar.</li>
+            </ul>
+            <p className="welcome-safety-signoff">Conduce con cuidado. Buen viaje.</p>
+          </div>
+        </section>
+
+        <button
+          className="welcome-continue"
+          type="button"
+          disabled={welcomeStage !== "safety"}
+          tabIndex={welcomeStage === "safety" ? 0 : -1}
+          aria-hidden={welcomeStage !== "safety"}
+          onClick={() => setShowWelcome(false)}
+        >
+          Continuar <ArrowRight size={18} strokeWidth={2} />
+        </button>
+      </main>
+    );
+  }
+
   return (
     <div className="app-shell">
 
@@ -1012,6 +1119,24 @@ function App() {
                     </p>
                   </div>
 
+                </div>
+
+                <div className="speed-gear-selector" role="group" aria-label="Selector de marcha">
+                  <span>MARCHA</span>
+                  <div className="speed-gear-options">
+                    {["P", "R", "N", "D"].map((gear) => (
+                      <button
+                        key={gear}
+                        type="button"
+                        className={selectedGear === gear ? "active" : ""}
+                        aria-label={`Seleccionar marcha ${gear}`}
+                        aria-pressed={selectedGear === gear}
+                        onClick={() => setSelectedGear(gear)}
+                      >
+                        {gear}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="speedometer">
